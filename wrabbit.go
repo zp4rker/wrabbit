@@ -25,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Process started!")
+	fmt.Printf("Process started with PID %v\n", cmd.Process.Pid)
 
 	err = cmd.Wait()
 	if err != nil {
@@ -33,5 +33,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Process completed!")
+	fmt.Printf("Process exited with status %v\n", cmd.ProcessState.ExitCode())
 }
