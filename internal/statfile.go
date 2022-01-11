@@ -14,25 +14,30 @@ type Statfile struct {
 	Data data.StatfileData
 }
 
+// create statfile, generate id and return pointer to statfile
 func PrepareStatfile() (*Statfile, error) {
 	sf := &Statfile{id: RandToken()}
 
+	// create necessary dirs
 	dir := fmt.Sprintf("%v/wrabbit/%v", os.TempDir(), sf.id)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
 	}
 
+	// create statfile
 	file, err := os.Create(fmt.Sprintf("%v/statfile.json", dir))
 	if err != nil {
 		return nil, err
 	} else {
+		// initialise statfile
 		sf.File = file
 		sf.Data = data.StatfileData{StartDate: time.Now()}
 		return sf, nil
 	}
 }
 
+// update modtime of statfile
 func (sf *Statfile) Touch() error {
 	now := time.Now()
 
