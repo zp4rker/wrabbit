@@ -44,6 +44,9 @@ func main() {
 	sf.Data.Args = cmd.Args
 	sf.Data.Running = true
 
+	// start polling
+	pollStop := sf.StartPoll()
+
 	// wait for process to exit
 	err = cmd.Wait()
 	if err != nil {
@@ -51,4 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("Process exited with status %v\n", cmd.ProcessState.ExitCode())
+
+	// cleanup
+	*pollStop <- true
 }

@@ -48,3 +48,24 @@ func (sf *Statfile) Touch() error {
 		return nil
 	}
 }
+
+// poll (touch) statfile every 5 seconds
+func (sf *Statfile) StartPoll() *chan bool {
+	done := make(chan bool)
+	ticker := time.NewTicker(5 * time.Second)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				err := sf.Touch()
+				if err != nil {
+					fmt.Println("Failed to touch statfile!")
+				}
+			}
+		}
+	}()
+	return &done
+}
