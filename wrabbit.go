@@ -45,7 +45,8 @@ func main() {
 	sf.Data.Running = true
 
 	// start polling
-	pollStop := sf.StartPoll()
+	pollStop := make(chan bool)
+	go sf.StartPoll(&pollStop)
 
 	// wait for process to exit
 	err = cmd.Wait()
@@ -56,5 +57,5 @@ func main() {
 	fmt.Printf("Process exited with status %v\n", cmd.ProcessState.ExitCode())
 
 	// cleanup
-	*pollStop <- true
+	pollStop <- true
 }
