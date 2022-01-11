@@ -38,7 +38,7 @@ func PrepareStatfile() (*Statfile, error) {
 		// initialise statfile
 		defer file.Close()
 		sf.File = file.Name()
-		sf.Data = data.StatfileData{StartDate: time.Now()}
+		sf.Data = data.StatfileData{Id: sf.id, StartDate: time.Now()}
 		return sf, nil
 	}
 }
