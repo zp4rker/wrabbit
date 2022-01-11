@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/zp4rker/wrabbit/internal/data"
+	"github.com/zp4rker/wrabbit/pkg/data"
 )
 
 type Statfile struct {
