@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/zp4rker/wrabbit/pkg/data"
@@ -11,7 +12,8 @@ import (
 
 type Statfile struct {
 	id   string
-	File *os.File
+	dir  string
+	File string
 	Data data.StatfileData
 }
 
@@ -20,11 +22,13 @@ func PrepareStatfile() (*Statfile, error) {
 	sf := &Statfile{id: RandToken()}
 
 	// create necessary dirs
-	dir := fmt.Sprintf("%v/wrabbit/%v", os.TempDir(), sf.id)
+	tmp := strings.TrimSuffix(os.TempDir(), "/")
+	dir := fmt.Sprintf("%v/wrabbit/%v", tmp, sf.id)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
 	}
+	sf.dir = dir
 
 	// create statfile
 	file, err := os.Create(fmt.Sprintf("%v/statfile.json", dir))
@@ -32,7 +36,8 @@ func PrepareStatfile() (*Statfile, error) {
 		return nil, err
 	} else {
 		// initialise statfile
-		sf.File = file
+		defer file.Close()
+		sf.File = file.Name()
 		sf.Data = data.StatfileData{StartDate: time.Now()}
 		return sf, nil
 	}
@@ -47,7 +52,7 @@ func (sf *Statfile) Update() error {
 	}
 
 	// write data
-	_, err = sf.File.Write(data)
+	err = os.WriteFile(sf.File, data, 0644)
 	if err != nil {
 		return err
 	}
@@ -58,7 +63,7 @@ func (sf *Statfile) Update() error {
 func (sf *Statfile) Touch() error {
 	now := time.Now()
 
-	err := os.Chtimes(sf.File.Name(), now, now)
+	err := os.Chtimes(sf.File, now, now)
 	if err != nil {
 		return err
 	} else {
