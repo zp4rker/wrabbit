@@ -43,6 +43,12 @@ func main() {
 	sf.Data.ProcId = cmd.Process.Pid
 	sf.Data.Args = cmd.Args
 	sf.Data.Running = true
+	err = sf.Update()
+	if err != nil {
+		fmt.Println("Failed to update statfile! Killing process...")
+		cmd.Process.Kill()
+		os.Exit(1)
+	}
 
 	// start polling
 	pollStop := make(chan bool)

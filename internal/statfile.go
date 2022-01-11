@@ -1,6 +1,7 @@
 package wrabbit
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -35,6 +36,22 @@ func PrepareStatfile() (*Statfile, error) {
 		sf.Data = data.StatfileData{StartDate: time.Now()}
 		return sf, nil
 	}
+}
+
+// update statfile with current data
+func (sf *Statfile) Update() error {
+	// marshal data
+	data, err := json.Marshal(sf.Data)
+	if err != nil {
+		return err
+	}
+
+	// write data
+	_, err = sf.File.Write(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // update modtime of statfile
