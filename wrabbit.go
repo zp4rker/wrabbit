@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	wrabbit "github.com/zp4rker/wrabbit/internal"
 )
@@ -62,6 +63,15 @@ func main() {
 	}
 	fmt.Printf("Process exited with status %v\n", cmd.ProcessState.ExitCode())
 
-	// cleanup
+	// stop polling
 	pollStop <- true
+
+	// update statfile
+	sf.Data.Running = false
+	sf.Data.EndDate = time.Now()
+	err = sf.Update()
+	if err != nil {
+		fmt.Println("Failed to update statfile!")
+		os.Exit(1)
+	}
 }
