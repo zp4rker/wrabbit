@@ -24,21 +24,33 @@ func main() {
 		cmd = exec.Command(os.Args[1])
 	}
 
+	// prepare statfile
+	sf, err := wrabbit.PrepareStatfile()
+	if err != nil {
+		fmt.Println("Failed to prepare statfile! Aborting...")
+		os.Exit(1)
+	}
+
+	// wrabbit struct
+	wr := wrabbit.Wrabbit{Statfile: sf, Cmd: cmd}
+	defer wr.Cleanup()
+
+	// initialise wrabbit api and start listening
+	err = wr.Init()
+	if err != nil {
+		fmt.Println("Failed to initialise wrabbit API! Aborting...")
+		wr.Cleanup()
+		os.Exit(1)
+	}
+	go wr.Listen()
+
 	// start command
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		fmt.Println("Failed to start process!")
 		os.Exit(1)
 	}
 	fmt.Printf("Process started with PID %v\n", cmd.Process.Pid)
-
-	// prepare statfile
-	sf, err := wrabbit.PrepareStatfile()
-	if err != nil {
-		fmt.Println("Failed to prepare statfile! Killing process...")
-		cmd.Process.Kill()
-		os.Exit(1)
-	}
 
 	// fill statfile
 	sf.Data.ProcId = cmd.Process.Pid
@@ -59,6 +71,7 @@ func main() {
 	err = cmd.Wait()
 	if err != nil {
 		fmt.Println("Encountered an error while waiting for process!")
+		wr.Cleanup()
 		os.Exit(1)
 	}
 	fmt.Printf("Process exited with status %v\n", cmd.ProcessState.ExitCode())
@@ -72,6 +85,7 @@ func main() {
 	err = sf.Update()
 	if err != nil {
 		fmt.Println("Failed to update statfile!")
+		wr.Cleanup()
 		os.Exit(1)
 	}
 }

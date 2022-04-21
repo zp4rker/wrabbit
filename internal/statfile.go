@@ -12,7 +12,7 @@ import (
 
 type Statfile struct {
 	id   string
-	dir  string
+	Dir  string
 	File string
 	Data data.StatfileData
 }
@@ -28,7 +28,7 @@ func PrepareStatfile() (*Statfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.dir = dir
+	sf.Dir = dir
 
 	// create statfile
 	file, err := os.Create(fmt.Sprintf("%v/statfile.json", dir))
